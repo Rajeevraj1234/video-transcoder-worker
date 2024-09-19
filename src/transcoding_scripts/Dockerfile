@@ -14,7 +14,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir git+https://github.com/openai/whisper.git
 
+# Pre-download the Whisper model
 RUN python3 -c "import whisper; whisper.load_model('base')"
+
 # Remove unnecessary files
 RUN find /usr/local/lib/python3.10 -name '__pycache__' -type d -exec rm -rf {} +
 
@@ -31,6 +33,7 @@ WORKDIR /app
 
 # Copy Python environment from builder
 COPY --from=builder /usr/local /usr/local
+COPY --from=builder /root/.cache/whisper /root/.cache/whisper
 
 # Copy application files
 COPY transcoding_shell.sh audio_to_srt.py video_to_audio.py embeed_subtitle_into_video.py /app/
